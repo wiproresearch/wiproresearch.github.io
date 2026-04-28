@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wipro Research — Shaping the Future of Industrial Engineering</title>
+<link rel="icon" type="image/svg+xml" href="assets/wipro-logo.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<style>
+  /* ============ Brand tokens (from Wipro Brand Guide 2024) ============ */
+  :root {
+    --wipro-blue: #351A55;     /* primary deep purple-blue */
+    --blue: #355493;
+    --light-purple: #746FA7;
+    --strong-pink: #BE266A;
+    --orange: #F57F2A;
+    --yellow: #FFCD2E;
+    --light-green: #7EC45F;
+    --blue-green: #3498B3;
+    --white: #FFFFFF;
+    --black: #000000;
+    --gray: #B4B4B4;
+    --ink: #1a0f2b;
+    --ink-soft: #4a3d5e;
+    --paper: #FAFAFB;
+    --paper-warm: #F4F2F7;
+    --line: rgba(53, 26, 85, 0.12);
+    --line-soft: rgba(53, 26, 85, 0.06);
+    --display: 'Mulish', 'Proxima Nova', Helvetica, Arial, sans-serif;
+    --body: 'Mulish', 'Wipro Akkurat', Helvetica, Arial, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:var(--body);
+    color:var(--ink);
+    background:var(--white);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    line-height:1.5;
+    font-size:17px;
+    overflow-x:hidden;
+  }
+  img,svg{display:block;max-width:100%}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+
+  h1,h2,h3,h4{
+    font-family:var(--display);
+    color:var(--wipro-blue);
+    letter-spacing:-0.02em;
+    line-height:1.05;
+    font-weight:800;
+    margin:0;
+  }
+  h1{font-size:clamp(44px, 6vw, 96px); font-weight:900}
+  h2{font-size:clamp(32px, 3.6vw, 56px)}
+  h3{font-size:clamp(22px, 1.8vw, 28px); font-weight:700}
+  p{margin:0 0 1em}
+
+  .wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+  @media (max-width:640px){.wrap{padding:0 20px}}
+
+  .eyebrow{
+    font-family:var(--mono);
+    text-transform:uppercase;
+    font-size:12px;
+    letter-spacing:0.18em;
+    color:var(--wipro-blue);
+    font-weight:500;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:24px;height:1px;background:var(--wipro-blue);opacity:.6;
+  }
+
+  /* ============ Navigation ============ */
+  .nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    backdrop-filter:saturate(180%) blur(20px);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);
+    background:rgba(255,255,255,0.78);
+    border-bottom:1px solid transparent;
+    transition:all .35s ease;
+  }
+  .nav.scrolled{
+    border-bottom-color:var(--line);
+    background:rgba(255,255,255,0.92);
+  }
+  .nav-inner{
+    display:flex;align-items:center;justify-content:space-between;
+    height:72px;
+    max-width:1280px;margin:0 auto;padding:0 32px;
+  }
+  .nav-logo{display:flex;align-items:center;gap:14px}
+  .nav-logo img{height:38px;width:auto}
+  .nav-links{display:flex;align-items:center;gap:40px}
+  .nav-links a{
+    font-size:15px;font-weight:500;color:var(--ink);
+    position:relative;transition:color .2s;
+  }
+  .nav-links a:hover{color:var(--wipro-blue)}
+  .nav-links a::after{
+    content:"";position:absolute;left:0;right:0;bottom:-6px;
+    height:2px;background:var(--wipro-blue);
+    transform:scaleX(0);transform-origin:left;transition:transform .3s ease;
+  }
+  .nav-links a:hover::after{transform:scaleX(1)}
+  .nav-cta{
+    background:var(--wipro-blue);color:var(--white);
+    padding:11px 22px;border-radius:999px;
+    font-size:14px;font-weight:600;letter-spacing:.01em;
+    transition:transform .2s ease, background .2s ease;
+  }
+  .nav-cta:hover{background:#22113b;transform:translateY(-1px)}
+  .nav-toggle{display:none}
+  @media (max-width:900px){
+    .nav-links{display:none}
+    .nav-toggle{display:flex;flex-direction:column;gap:5px;width:32px;padding:6px}
+    .nav-toggle span{height:1.5px;background:var(--wipro-blue);display:block;border-radius:2px;transition:transform .3s}
+    .nav-links.open{
+      display:flex;position:absolute;top:72px;left:0;right:0;flex-direction:column;
+      align-items:flex-start;gap:0;padding:8px 32px 24px;
+      background:rgba(255,255,255,0.97);border-bottom:1px solid var(--line);
+    }
+    .nav-links.open a{padding:14px 0;width:100%;border-bottom:1px solid var(--line-soft)}
+  }
+
+  /* ============ Hero ============ */
+  .hero{
+    position:relative;
+    padding:160px 0 120px;
+    background:linear-gradient(180deg, #FAF8FB 0%, #FFFFFF 100%);
+    overflow:hidden;
+  }
+  .hero-grid{
+    display:grid;grid-template-columns:1fr 1.05fr;gap:64px;align-items:center;
+  }
+  @media (max-width:900px){.hero-grid{grid-template-columns:1fr;gap:60px}}
+  .hero h1{
+    color:var(--wipro-blue);
+    margin:24px 0 32px;
+    text-wrap:balance;
+  }
+  .hero h1 .accent{
+    background:linear-gradient(90deg, var(--strong-pink), var(--orange) 60%, var(--yellow));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero-lead{
+    font-size:clamp(17px, 1.3vw, 20px);
+    line-height:1.55;
+    color:var(--ink-soft);
+    max-width:560px;
+    margin-bottom:40px;
+  }
+  .btn-row{display:flex;gap:14px;flex-wrap:wrap}
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:15px 28px;border-radius:999px;
+    font-size:15px;font-weight:600;
+    transition:all .25s ease;
+  }
+  .btn-primary{background:var(--wipro-blue);color:var(--white)}
+  .btn-primary:hover{background:#22113b;transform:translateY(-2px);box-shadow:0 12px 28px rgba(53,26,85,.25)}
+  .btn-ghost{
+    background:transparent;color:var(--wipro-blue);
+    border:1.5px solid var(--line);
+  }
+  .btn-ghost:hover{border-color:var(--wipro-blue);background:var(--wipro-blue);color:var(--white)}
+  .btn .arrow{transition:transform .25s ease}
+  .btn:hover .arrow{transform:translateX(4px)}
+
+  /* Hero image (replaces crescent illustration) */
+  .hero-media{
+    position:relative;aspect-ratio:760/820;width:100%;max-width:760px;margin-left:auto;
+    border-radius:28px;overflow:hidden;
+    background:linear-gradient(135deg, #ECE5F2 0%, #DDD0E8 100%);
+    box-shadow:0 40px 80px rgba(53,26,85,.28);
+  }
+  /* Hero animated graph */
+  .hero-graph{
+    background:transparent;
+    border:none;
+    box-shadow:none;
+    border-radius:0;
+    overflow:visible;
+  }
+  .hero-graph svg{width:100%;height:100%;display:block}
+  .hero-graph .node{cursor:grab}
+  .hero-graph .node:active{cursor:grabbing}
+  .hero-graph .link{stroke:var(--strong-pink);stroke-opacity:0.1;stroke-width:5}
+  .hero-graph .tooltip{
+    font-family:var(--display);
+    font-size:13px;font-weight:600;
+    fill:var(--wipro-blue);
+    paint-order:stroke;
+    stroke:#FFFFFF;stroke-width:4;stroke-linejoin:round;
+    pointer-events:none;
+  }
+  .hero-media img{width:100%;height:100%;object-fit:cover;display:block}
+  .hero-infographic{width:100%;height:100%;display:block}
+
+  /* Sankey ribbons — slow shimmer */
+  .hero-infographic .ribbon{transition:opacity .35s ease;mix-blend-mode:screen}
+  .hero-infographic:hover .ribbon{opacity:.18}
+  .hero-infographic .ribbon-shimmer{animation:ribbonShimmer 9s ease-in-out infinite}
+  .hero-infographic .ribbon-shimmer.s2{animation-delay:1.4s}
+  .hero-infographic .ribbon-shimmer.s3{animation-delay:2.8s}
+  .hero-infographic .ribbon-shimmer.s4{animation-delay:4.2s}
+  .hero-infographic .ribbon-shimmer.s5{animation-delay:5.6s}
+  @keyframes ribbonShimmer{0%,100%{opacity:.32}50%{opacity:.55}}
+
+  /* Orb groups — each drifts on its own slow elliptical path */
+  .hero-infographic .node{cursor:pointer;transform-box:fill-box;transform-origin:center}
+  .hero-infographic .node .orb-core{transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+  .hero-infographic .node:hover .orb-core{transform:scale(1.18)}
+  .hero-infographic .node .tip{opacity:0;transition:opacity .25s ease;pointer-events:none}
+  .hero-infographic .node:hover .tip{opacity:1}
+  .hero-infographic .node:hover ~ .ribbon,
+  .hero-infographic:has(.node:hover) .ribbon{opacity:.12}
+
+  /* Orbital drift — different orbits/durations per orb */
+  .hero-infographic .drift{animation:driftA 14s ease-in-out infinite}
+  .hero-infographic .drift.d2{animation:driftB 17s ease-in-out infinite;animation-delay:-3s}
+  .hero-infographic .drift.d3{animation:driftC 16s ease-in-out infinite;animation-delay:-7s}
+  .hero-infographic .drift.d4{animation:driftA 15s ease-in-out infinite;animation-delay:-2s}
+  .hero-infographic .drift.d5{animation:driftB 18s ease-in-out infinite;animation-delay:-9s}
+  .hero-infographic .drift.d6{animation:driftC 13s ease-in-out infinite;animation-delay:-1s}
+  .hero-infographic .drift.d7{animation:driftA 16s ease-in-out infinite;animation-delay:-5s}
+  .hero-infographic .drift.d8{animation:driftB 14s ease-in-out infinite;animation-delay:-8s}
+  .hero-infographic .drift.d9{animation:driftC 17s ease-in-out infinite;animation-delay:-4s}
+  .hero-infographic .drift.d10{animation:driftA 13s ease-in-out infinite;animation-delay:-6s}
+  .hero-infographic .drift.d11{animation:driftB 15s ease-in-out infinite;animation-delay:-2s}
+  @keyframes driftA{
+    0%,100%{transform:translate(0,0)}
+    25%{transform:translate(4px,-3px)}
+    50%{transform:translate(0,-6px)}
+    75%{transform:translate(-4px,-3px)}
+  }
+  @keyframes driftB{
+    0%,100%{transform:translate(0,0)}
+    25%{transform:translate(-3px,3px)}
+    50%{transform:translate(-5px,0)}
+    75%{transform:translate(-3px,-3px)}
+  }
+  @keyframes driftC{
+    0%,100%{transform:translate(0,0)}
+    33%{transform:translate(3px,4px)}
+    66%{transform:translate(-3px,2px)}
+  }
+
+  /* Twinkle stars */
+  .hero-infographic .twinkle{animation:twinkle 4s ease-in-out infinite}
+  .hero-infographic .twinkle.t2{animation-delay:.9s}
+  .hero-infographic .twinkle.t3{animation-delay:1.8s}
+  .hero-infographic .twinkle.t4{animation-delay:2.7s}
+  .hero-infographic .twinkle.t5{animation-delay:.5s}
+  .hero-infographic .twinkle.t6{animation-delay:1.4s}
+  @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.7}}
+
+  @media (prefers-reduced-motion: reduce){
+    .hero-infographic .drift,
+    .hero-infographic .twinkle,
+    .hero-infographic .ribbon-shimmer{animation:none}
+  }
+  .hero-media .placeholder{
+    position:absolute;inset:0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    color:var(--wipro-blue);text-align:center;padding:32px;gap:14px;
+    background:
+      repeating-linear-gradient(45deg, rgba(53,26,85,.04) 0 12px, transparent 12px 24px),
+      linear-gradient(135deg, #ECE5F2 0%, #DDD0E8 100%);
+  }
+  .hero-media .placeholder .label{
+    font-family:var(--mono);font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--wipro-blue);opacity:.6;
+  }
+  .hero-media .placeholder .desc{
+    font-family:var(--mono);font-size:13px;color:var(--wipro-blue);opacity:.7;max-width:18ch;line-height:1.4;
+  }
+  .hero-media .ribbon{
+    position:absolute;left:24px;bottom:24px;right:24px;
+    display:flex;align-items:center;gap:12px;
+    background:rgba(255,255,255,.92);
+    backdrop-filter:blur(10px);
+    border-radius:14px;padding:14px 18px;
+    box-shadow:0 8px 24px rgba(53,26,85,.1);
+  }
+  .hero-media .ribbon .dot{width:10px;height:10px;border-radius:50%;background:var(--strong-pink);flex-shrink:0;animation:pulseDot 2s ease-in-out infinite}
+  @keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.4}}
+  .hero-media .ribbon .text{font-size:13px;color:var(--ink);font-weight:500}
+  .hero-media .ribbon .text small{display:block;color:var(--ink-soft);font-size:11px;font-weight:400;margin-top:2px}
+
+  /* Generic photo placeholder */
+  .photo{
+    position:relative;border-radius:24px;overflow:hidden;
+    background:linear-gradient(135deg, #F4F2F7 0%, #E5DCED 100%);
+  }
+  .photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .photo .placeholder{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;padding:24px;gap:10px;
+    background:
+      repeating-linear-gradient(45deg, rgba(53,26,85,.04) 0 12px, transparent 12px 24px);
+  }
+  .photo .placeholder .label{
+    font-family:var(--mono);font-size:10px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--wipro-blue);opacity:.55;
+  }
+  .photo .placeholder .desc{
+    font-family:var(--mono);font-size:12px;color:var(--wipro-blue);opacity:.7;line-height:1.4;
+  }
+  .hero-stats{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:32px;
+    margin-top:96px;padding-top:48px;border-top:1px solid var(--line);
+  }
+  @media (max-width:640px){.hero-stats{grid-template-columns:1fr;gap:24px}}
+  .stat .num{
+    font-family:var(--display);font-weight:800;
+    font-size:clamp(36px, 4vw, 56px);
+    color:var(--wipro-blue);line-height:1;letter-spacing:-0.03em;
+  }
+  .stat .lbl{
+    margin-top:8px;color:var(--ink-soft);font-size:14px;
+  }
+  a.stat-link{
+    display:block;text-decoration:none;color:inherit;
+    padding:4px 0;border-radius:8px;
+    transition:transform .25s ease;
+  }
+  a.stat-link:hover{transform:translateY(-2px)}
+  a.stat-link:hover .num{color:var(--strong-pink)}
+  a.stat-link:hover .stat-arrow{transform:translate(3px,-3px);opacity:1}
+  .stat-arrow{
+    display:inline-block;font-size:0.42em;font-weight:600;
+    margin-left:10px;vertical-align:top;line-height:1;
+    color:var(--strong-pink);opacity:.75;
+    transition:transform .25s ease, opacity .25s ease;
+    transform:translateY(2px);
+  }
+  .stat-sub{
+    color:var(--strong-pink);font-weight:600;
+    font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;margin-left:2px;
+  }
+  .stat-note{
+    margin-top:6px;font-family:var(--mono);font-size:11px;
+    color:var(--ink-soft);opacity:.7;letter-spacing:.02em;
+  }
+
+  /* ============ Section base ============ */
+  section{padding:120px 0;position:relative}
+  .section-head{display:grid;grid-template-columns:1fr 1.4fr;gap:80px;margin-bottom:72px;align-items:end}
+  @media (max-width:900px){.section-head{grid-template-columns:1fr;gap:24px;margin-bottom:48px}}
+  .section-head h2{text-wrap:balance}
+
+  /* ============ About ============ */
+  .about{background:var(--white)}
+  .about-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;
+  }
+  @media (max-width:900px){.about-grid{grid-template-columns:1fr;gap:48px}}
+  .about-copy p{font-size:18px;line-height:1.65;color:var(--ink-soft);margin-bottom:24px}
+  .about-copy p strong{color:var(--wipro-blue);font-weight:600}
+  .pillars{display:flex;flex-direction:column;gap:1px;background:var(--line);border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+  .pillar{
+    background:var(--white);padding:28px 32px;
+    display:flex;justify-content:space-between;align-items:baseline;gap:24px;
+    transition:background .3s ease;
+  }
+  .pillar:hover{background:var(--paper-warm)}
+  .pillar .k{
+    font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--ink-soft);
+    text-transform:uppercase;flex-shrink:0;width:60px;
+  }
+  .pillar .v{font-family:var(--display);font-weight:600;font-size:20px;color:var(--wipro-blue);line-height:1.3}
+  .about-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:64px}
+  @media (max-width:800px){.about-strip{grid-template-columns:1fr}}
+
+  /* ============ Research areas ============ */
+  .research{
+    background:linear-gradient(180deg,#FFFFFF 0%, #F7F5FA 100%);
+  }
+  .areas{display:grid;grid-template-columns:repeat(12,1fr);gap:24px}
+  .area{
+    grid-column:span 4;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:24px;
+    padding:36px;
+    position:relative;overflow:hidden;
+    transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+    min-height:380px;
+    display:flex;flex-direction:column;
+  }
+  .area:hover{
+    transform:translateY(-6px);
+    box-shadow:0 24px 48px rgba(53,26,85,.08);
+    border-color:transparent;
+  }
+  .area .num{
+    font-family:var(--mono);font-size:12px;letter-spacing:.18em;
+    color:var(--ink-soft);text-transform:uppercase;
+  }
+  .area h3{margin:18px 0 14px;color:var(--wipro-blue);text-wrap:balance}
+  .area p{color:var(--ink-soft);font-size:15px;line-height:1.6;flex:1}
+  .area .swatch{
+    width:56px;height:56px;border-radius:14px;
+    display:flex;align-items:center;justify-content:center;
+    margin-top:24px;
+    transition:transform .3s ease;
+  }
+  .area:hover .swatch{transform:rotate(-6deg) scale(1.05)}
+  .area-icon{width:28px;height:28px;color:var(--white)}
+  .area::after{
+    content:"";position:absolute;top:0;right:0;width:160px;height:160px;
+    border-radius:50%;
+    transform:translate(60%, -60%);
+    opacity:0;transition:opacity .4s ease;
+  }
+  .area:hover::after{opacity:.08}
+  .area[data-c="1"] .swatch{background:var(--blue-green)}.area[data-c="1"]::after{background:var(--blue-green)}
+  .area[data-c="2"] .swatch{background:var(--blue)}.area[data-c="2"]::after{background:var(--blue)}
+  .area[data-c="3"] .swatch{background:var(--strong-pink)}.area[data-c="3"]::after{background:var(--strong-pink)}
+  .area[data-c="4"] .swatch{background:var(--light-green)}.area[data-c="4"]::after{background:var(--light-green)}
+  .area[data-c="5"] .swatch{background:var(--orange)}.area[data-c="5"]::after{background:var(--orange)}
+
+  .area:nth-child(4){grid-column:span 6}
+  .area:nth-child(5){grid-column:span 6}
+  @media (max-width:1000px){
+    .area, .area:nth-child(4), .area:nth-child(5){grid-column:span 6}
+  }
+  @media (max-width:640px){
+    .area, .area:nth-child(4), .area:nth-child(5){grid-column:span 12}
+  }
+
+  /* ============ Launch announcement ============ */
+  .launch{background:#FAF7FB;position:relative;overflow:hidden}
+  .launch::before{
+    content:"";position:absolute;top:-180px;right:-180px;width:520px;height:520px;
+    border-radius:50%;background:radial-gradient(circle, rgba(53,26,85,.06) 0%, transparent 65%);
+    pointer-events:none;
+  }
+  .launch-grid{
+    display:grid;grid-template-columns:1.05fr 1fr;gap:64px;align-items:center;
+  }
+  @media (max-width:980px){.launch-grid{grid-template-columns:1fr;gap:40px}}
+  .launch-media{
+    position:relative;border-radius:24px;overflow:hidden;
+    box-shadow:0 30px 80px rgba(53,26,85,.18);
+  }
+  .launch-media img{display:block;width:100%;height:auto}
+  .launch-caption{
+    display:flex;align-items:center;gap:10px;
+    padding:16px 20px;background:var(--wipro-blue);color:#fff;
+    font-family:var(--mono);font-size:11px;letter-spacing:.06em;line-height:1.4;
+  }
+  .launch-caption .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .launch-copy .lede{font-size:18px;line-height:1.6;color:var(--ink);margin:24px 0 32px}
+  .launch-copy .lede strong{color:var(--wipro-blue);font-weight:600}
+  .pullquote{
+    margin:0 0 32px;padding:28px 32px;
+    border-left:4px solid var(--strong-pink);
+    background:#fff;border-radius:0 16px 16px 0;
+    box-shadow:0 8px 24px rgba(53,26,85,.06);
+  }
+  .pullquote p{
+    font-family:var(--display);font-size:19px;line-height:1.5;
+    color:var(--wipro-blue);margin:0 0 16px;font-weight:500;
+    letter-spacing:-0.01em;
+  }
+  .pullquote cite{display:block;font-style:normal}
+  .pullquote cite strong{display:block;font-weight:600;color:var(--ink);font-size:14px;margin-bottom:2px}
+  .pullquote cite span{font-size:13px;color:var(--ink-soft)}
+  .launch-people{
+    display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;
+    padding:24px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  }
+  @media (max-width:480px){.launch-people{grid-template-columns:1fr}}
+  .person-name{font-family:var(--display);font-weight:600;color:var(--wipro-blue);font-size:15px;margin-bottom:4px}
+  .person-role{font-size:13px;color:var(--ink-soft);line-height:1.4}
+  .launch-link{
+    display:inline-flex;align-items:center;gap:8px;
+    color:var(--wipro-blue);font-weight:600;font-size:15px;
+    text-decoration:none;border-bottom:1px solid var(--wipro-blue);
+    padding-bottom:2px;transition:gap .2s ease;
+  }
+  .launch-link:hover{gap:14px}
+
+  /* ============ WIN Businesses ============ */
+  .win-biz{background:var(--white)}
+  .biz-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:32px}
+  @media (max-width:800px){.biz-grid{grid-template-columns:1fr}}
+  .biz-wide{grid-column:1 / -1;display:grid;grid-template-columns:1.1fr 1fr;align-items:stretch}
+  @media (max-width:800px){.biz-wide{grid-template-columns:1fr}}
+  .biz-wide .biz-photo{aspect-ratio:auto;height:100%;min-height:320px}
+  .biz-link{
+    display:inline-block;margin-top:14px;
+    color:var(--wipro-blue);font-weight:600;font-size:13px;
+    text-decoration:none;font-family:var(--mono);letter-spacing:.04em;
+    border-bottom:1px solid transparent;transition:border-color .2s ease;
+  }
+  .biz-link:hover{border-bottom-color:var(--wipro-blue)}
+  .biz{
+    border-radius:24px;overflow:hidden;
+    background:var(--white);border:1px solid var(--line);
+    transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+    display:flex;flex-direction:column;
+  }
+  .biz:hover{transform:translateY(-6px);box-shadow:0 24px 48px rgba(53,26,85,.08);border-color:transparent}
+  .biz-photo{
+    position:relative;aspect-ratio:16/10;
+    background:linear-gradient(135deg, #ECE5F2 0%, #DDD0E8 100%);
+    overflow:hidden;
+  }
+  .biz-photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .biz-photo .placeholder{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:8px;text-align:center;padding:20px;
+    background:repeating-linear-gradient(45deg, rgba(53,26,85,.04) 0 12px, transparent 12px 24px);
+  }
+  .biz-photo .placeholder .label{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--wipro-blue);opacity:.55}
+  .biz-photo .placeholder .desc{font-family:var(--mono);font-size:12px;color:var(--wipro-blue);opacity:.7}
+  .biz-body{padding:32px}
+  .biz-tag{
+    display:inline-block;color:var(--white);
+    font-family:var(--mono);font-size:10px;letter-spacing:.18em;
+    text-transform:uppercase;font-weight:600;
+    padding:5px 12px;border-radius:999px;margin-bottom:16px;
+  }
+  .biz-body h3{margin-bottom:12px;color:var(--wipro-blue)}
+  .biz-body p{color:var(--ink-soft);font-size:15px;line-height:1.6;margin:0}
+
+  /* ============ Collaboration ============ */
+  .collab{
+    background:var(--wipro-blue);color:var(--white);
+    position:relative;overflow:hidden;
+  }
+  .collab h2{color:var(--white)}
+  .collab .eyebrow{color:rgba(255,255,255,.7)}
+  .collab .eyebrow::before{background:rgba(255,255,255,.5)}
+  .collab .lead{color:rgba(255,255,255,.8);font-size:20px;line-height:1.55;max-width:680px}
+  .collab-bg{
+    position:absolute;inset:0;pointer-events:none;opacity:.18;
+  }
+  .collab-bg svg{position:absolute;width:600px;height:600px}
+  .collab-bg svg:nth-child(1){top:-180px;right:-160px}
+  .collab-bg svg:nth-child(2){bottom:-220px;left:-180px;transform:rotate(160deg)}
+
+  .channels{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:64px;
+    position:relative;z-index:1;
+  }
+  @media (max-width:900px){.channels{grid-template-columns:1fr}}
+  .channel{
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:20px;padding:36px;
+    background:rgba(255,255,255,.03);
+    transition:all .3s ease;
+    position:relative;overflow:hidden;
+  }
+  .channel:hover{
+    background:rgba(255,255,255,.07);
+    transform:translateY(-4px);
+    border-color:rgba(255,255,255,.32);
+  }
+  .channel .dot{
+    width:10px;height:10px;border-radius:50%;display:block;margin-bottom:24px;
+  }
+  .channel:nth-child(1) .dot{background:var(--yellow)}
+  .channel:nth-child(2) .dot{background:var(--light-green)}
+  .channel:nth-child(3) .dot{background:var(--orange)}
+  .channel h3{color:var(--white);margin-bottom:12px;font-size:24px}
+  .channel p{color:rgba(255,255,255,.75);font-size:15px;line-height:1.6;margin:0}
+
+  /* ============ Partnership / Careers ============ */
+  .partner{background:var(--white)}
+  .partner-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:stretch}
+  @media (max-width:900px){.partner-grid{grid-template-columns:1fr}}
+  .partner-card{
+    border-radius:28px;padding:48px;
+    display:flex;flex-direction:column;justify-content:space-between;
+    min-height:480px;position:relative;overflow:hidden;
+    transition:transform .4s ease;
+  }
+  .partner-card:hover{transform:translateY(-4px)}
+  .partner-card.collab-card{
+    background:linear-gradient(135deg, #F4F2F7 0%, #ECE5F2 100%);
+  }
+  .partner-card.career-card{
+    background:linear-gradient(135deg, var(--wipro-blue) 0%, #1c0d33 100%);
+    color:var(--white);
+  }
+  .partner-card.career-card h2,
+  .partner-card.career-card .eyebrow{color:var(--white)}
+  .partner-card.career-card .eyebrow::before{background:rgba(255,255,255,.5)}
+  .partner-card.career-card p{color:rgba(255,255,255,.78)}
+  .partner-card h2{font-size:clamp(28px, 2.4vw, 40px);margin:18px 0 20px;text-wrap:balance}
+  .partner-card p{font-size:16px;line-height:1.6;margin-bottom:32px}
+  .partner-card.collab-card p{color:var(--ink-soft)}
+  .partner-card .btn-primary{align-self:flex-start;background:var(--wipro-blue)}
+  .career-photo{
+    position:relative;border-radius:18px;overflow:hidden;
+    height:200px;margin-bottom:28px;
+    background:linear-gradient(135deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.02) 100%);
+    border:1px solid rgba(255,255,255,.12);
+  }
+  .career-photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .career-photo .placeholder{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:8px;text-align:center;
+    background:repeating-linear-gradient(45deg, rgba(255,255,255,.04) 0 12px, transparent 12px 24px);
+  }
+  .career-photo .placeholder .label{
+    font-family:var(--mono);font-size:10px;letter-spacing:.18em;
+    text-transform:uppercase;color:rgba(255,255,255,.55);
+  }
+  .career-photo .placeholder .desc{
+    font-family:var(--mono);font-size:12px;color:rgba(255,255,255,.7);
+  }
+  .partner-card.career-card .btn-primary{background:var(--white);color:var(--wipro-blue)}
+  .partner-card.career-card .btn-primary:hover{background:var(--yellow);color:var(--wipro-blue)}
+  .ways-list{list-style:none;padding:0;margin:0 0 32px;display:flex;flex-direction:column;gap:10px}
+  .ways-list li{
+    display:flex;align-items:center;gap:12px;
+    font-size:15px;color:var(--ink-soft);
+  }
+  .partner-card.career-card .ways-list li{color:rgba(255,255,255,.78)}
+  .ways-list li::before{
+    content:"";width:16px;height:1px;background:currentColor;opacity:.5;flex-shrink:0;
+  }
+  .partner-deco{
+    position:absolute;right:-60px;bottom:-60px;width:280px;height:280px;
+    opacity:.12;pointer-events:none;
+  }
+
+  /* ============ Contact ============ */
+  .contact{background:var(--paper-warm);position:relative;overflow:hidden}
+  .contact-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:80px;align-items:start}
+  @media (max-width:900px){.contact-grid{grid-template-columns:1fr;gap:48px}}
+  .contact-info h2{margin:18px 0 24px}
+  .contact-info p{font-size:18px;line-height:1.6;color:var(--ink-soft);max-width:440px}
+  .contact-meta{margin-top:40px;display:flex;flex-direction:column;gap:20px}
+  .contact-meta .row{display:flex;flex-direction:column;gap:6px;padding:18px 0;border-top:1px solid var(--line)}
+  .contact-meta .row:last-child{border-bottom:1px solid var(--line)}
+  .contact-meta .k{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft)}
+  .contact-meta .v{font-size:15px;color:var(--ink);font-weight:500}
+  .contact-meta a.v:hover{color:var(--strong-pink)}
+
+  .contact-cta{
+    background:var(--wipro-blue);color:var(--white);
+    border-radius:24px;padding:48px;
+    box-shadow:0 24px 60px rgba(53,26,85,.18);
+    position:relative;overflow:hidden;
+  }
+  .contact-cta::before{
+    content:"";position:absolute;top:-100px;right:-100px;width:300px;height:300px;
+    border-radius:50%;background:radial-gradient(circle, rgba(190,38,106,.25) 0%, transparent 65%);
+    pointer-events:none;
+  }
+  .contact-cta-inner{position:relative}
+  .contact-cta h3{
+    font-family:var(--display);font-weight:700;
+    font-size:clamp(28px,2.4vw,36px);line-height:1.15;letter-spacing:-0.01em;
+    color:var(--white);margin:18px 0 16px;
+  }
+  .contact-cta p{color:rgba(255,255,255,.8);font-size:15px;line-height:1.6;margin:0 0 28px}
+  .contact-cta-btn{
+    display:inline-flex;align-items:center;gap:12px;
+    background:var(--white);color:var(--wipro-blue);
+    padding:16px 24px;border-radius:14px;
+    font-weight:600;font-size:15px;
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .contact-cta-btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.2)}
+  .contact-cta-note{
+    margin-top:24px !important;
+    font-size:13px !important;color:rgba(255,255,255,.6) !important;
+    line-height:1.5 !important;
+  }
+
+  /* ============ Footer ============ */
+  .footer{
+    background:var(--wipro-blue);color:var(--white);
+    padding:80px 0 32px;
+  }
+  .footer-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:48px;margin-bottom:64px}
+  @media (max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;gap:40px}}
+  @media (max-width:560px){.footer-grid{grid-template-columns:1fr}}
+  .footer-brand img{height:40px;margin-bottom:24px}
+  .footer-brand p{color:rgba(255,255,255,.7);font-size:14px;line-height:1.6;max-width:340px}
+  .footer-col h4{
+    font-family:var(--mono);font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:rgba(255,255,255,.55);
+    font-weight:500;margin-bottom:18px;
+  }
+  .footer-col ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px}
+  .footer-col a{color:rgba(255,255,255,.85);font-size:14px;transition:color .2s}
+  .footer-col a:hover{color:var(--yellow)}
+  .footer-bottom{
+    padding-top:32px;border-top:1px solid rgba(255,255,255,.12);
+    display:flex;justify-content:space-between;align-items:center;
+    flex-wrap:wrap;gap:16px;
+    color:rgba(255,255,255,.5);font-size:13px;
+  }
+  .footer-bottom .legal{display:flex;gap:24px}
+  .footer-bottom a:hover{color:var(--white)}
+
+  /* Animations */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .8s ease, transform .8s ease}
+  .reveal.in{opacity:1;transform:translateY(0)}
+
+</style>
+</head>
+<body>
+
+<template id="__bundler_thumbnail" data-bg-color="#FAF8FB">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#FAF8FB"/>
+    <!-- Bipartite-graph silhouette echoing the hero -->
+    <g>
+      <line x1="380" y1="280" x2="820" y2="320" stroke="#BE266A" stroke-opacity="0.18" stroke-width="6"/>
+      <line x1="380" y1="380" x2="820" y2="280" stroke="#BE266A" stroke-opacity="0.18" stroke-width="6"/>
+      <line x1="380" y1="380" x2="820" y2="420" stroke="#BE266A" stroke-opacity="0.18" stroke-width="6"/>
+      <line x1="380" y1="480" x2="820" y2="380" stroke="#BE266A" stroke-opacity="0.18" stroke-width="6"/>
+      <line x1="380" y1="480" x2="820" y2="520" stroke="#BE266A" stroke-opacity="0.18" stroke-width="6"/>
+      <line x1="380" y1="580" x2="820" y2="520" stroke="#BE266A" stroke-opacity="0.18" stroke-width="6"/>
+    </g>
+    <g fill="#351A55">
+      <circle cx="380" cy="280" r="22"/>
+      <circle cx="380" cy="380" r="22"/>
+      <circle cx="380" cy="480" r="22"/>
+      <circle cx="380" cy="580" r="22"/>
+    </g>
+    <g fill="#3498B3">
+      <circle cx="820" cy="280" r="22"/>
+      <circle cx="820" cy="320" r="22"/>
+      <circle cx="820" cy="380" r="22"/>
+      <circle cx="820" cy="420" r="22"/>
+      <circle cx="820" cy="520" r="22"/>
+    </g>
+    <text x="600" y="720" text-anchor="middle"
+          font-family="Mulish, Helvetica, Arial, sans-serif"
+          font-weight="800" font-size="48" fill="#351A55"
+          letter-spacing="-1">Wipro Research</text>
+  </svg>
+</template>
+
+<!-- ============ NAV ============ -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#top" class="nav-logo" aria-label="Wipro Research home">
+      <img src="assets/wipro-research-logo.png" alt="Wipro Research" />
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="#research">Research</a>
+      <a href="#businesses">Businesses</a>
+      <a href="#launch">News</a>
+      <a href="#collaboration">Collaboration</a>
+      <a href="academic-partnerships.html">Academic Partnerships</a>
+      <a href="#careers">Careers</a>
+      <a href="#contact" class="nav-cta" style="color: rgb(255, 255, 255)">Get in touch</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<main id="top">
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">Research Division · Wipro Infrastructure Engineering</span>
+        <h1>
+          Shaping the future of <span class="accent">industrial engineering.</span>
+        </h1>
+        <p class="hero-lead">
+          We drive innovation across automation, hydraulics, aerospace, electronics and advanced manufacturing — combining cutting-edge research with practical applications to solve tomorrow's industrial challenges today.
+        </p>
+        <div class="btn-row">
+          <a href="#research" class="btn btn-primary">
+            Explore research areas
+            <svg class="arrow" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L8 3m5 5l-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="academic-partnerships.html" class="btn btn-ghost">
+            Academic partnerships
+          </a>
+        </div>
+      </div>
+
+      <!-- Hero animated graph: research domains ↔ WIN businesses -->
+      <div class="hero-media hero-graph">
+        <svg id="heroGraph" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet" aria-label="Animated graph linking research domains to WIN businesses"></svg>
+      </div>
+    </div>
+
+    <div class="hero-stats reveal">
+      <div class="stat">
+        <div class="num">5</div>
+        <div class="lbl">Strategic research domains</div>
+      </div>
+      <a class="stat stat-link" href="https://trl-tracker.wiproresearch.in" target="_blank" rel="noopener" title="Opens the TRL Tracker — restricted portal, sign in with an authorised account">
+        <div class="num">20<span class="stat-arrow" aria-hidden="true">↗</span></div>
+        <div class="lbl">Live projects <span class="stat-sub">· View on TRL Tracker Portal</span></div>
+      </a>
+      <div class="stat">
+        <div class="num">∞</div>
+        <div class="lbl">Industrial challenges to solve</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section class="about" id="about">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <span class="eyebrow">About</span>
+        <h2 style="margin-top:18px">Research that builds a better world.</h2>
+      </div>
+    </div>
+    <div class="about-grid reveal">
+      <div class="about-copy">
+        <p><strong>Established in 2024,</strong> Wipro Research represents our commitment to maintaining technological leadership in the industrial engineering sector.</p>
+        <p>Our state-of-the-art facility houses cross-functional teams working on breakthrough technologies that shape the future of manufacturing, automation, and infrastructure solutions — translating ambitious research into industrial reality.</p>
+        <p>We are part of <strong>Wipro Infrastructure Engineering</strong>, a diverse industrial engineering business with expertise spanning over Hydraulics, Aerospace, Water treatment, Additive manufacturing and Automation solutions with 33 state-of-the-art manufacturing facilities across 4 continents.</p>
+      </div>
+      <div class="pillars">
+        <div class="pillar">
+          <div class="k">01</div>
+          <div class="v">Cross-functional teams solving real industrial challenges</div>
+        </div>
+        <div class="pillar">
+          <div class="k">02</div>
+          <div class="v">Anchored in Bengaluru, collaborating globally</div>
+        </div>
+        <div class="pillar">
+          <div class="k">03</div>
+          <div class="v">Bridging fundamental research with field deployment</div>
+        </div>
+        <div class="pillar">
+          <div class="k">04</div>
+          <div class="v">Purpose-driven — technology for a sustainable future</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- About photography strip -->
+    <div class="about-strip reveal">
+      <div class="photo" style="aspect-ratio:4/3">
+        <img src="assets/photos/hardware-in-motion.png" alt="Compact excavator and skid-steer at work on site — hardware in motion" />
+      </div>
+      <div class="photo" style="aspect-ratio:4/3">
+        <img src="assets/photos/vision-system.jpg" alt="Collaborative robot arm picking from labelled bins in a research lab — vision system in action" />
+      </div>
+      <div class="photo" style="aspect-ratio:4/3">
+        <img src="assets/photos/material-science-inverted.png" alt="COMSOL Multiphysics flow simulation — velocity field and particle trajectories through a chamber" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RESEARCH AREAS ============ -->
+<section class="research" id="research">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <span class="eyebrow">Research areas</span>
+        <h2 style="margin-top:18px">Five domains. One mission.</h2>
+      </div>
+      <p style="font-size:18px;line-height:1.6;color:var(--ink-soft);margin:0">
+        Our research portfolio spans the full stack of modern industrial engineering — from the physics of motion and materials to the intelligence layered above them. Each domain is led by dedicated experts and supported by deep partnerships with academia and industry.
+      </p>
+    </div>
+
+    <div class="areas">
+      <article class="area reveal" data-c="1">
+        <div class="num">01 / Domain</div>
+        <h3>Motion Components &amp; Autonomous Control</h3>
+        <p>Advancing industrial automation through innovative control systems. Our research spans precision movement in electro-hydraulic equipment, autonomous navigation, and AI-driven predictive maintenance.</p>
+        <div class="swatch">
+          <svg class="area-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </div>
+      </article>
+
+      <article class="area reveal" data-c="2">
+        <div class="num">02 / Domain</div>
+        <h3>Electronics, Network &amp; Communication</h3>
+        <p>Developing robust industrial IoT solutions and next-generation communication systems. We focus on seamless connectivity for smart manufacturing environments and infrastructure networks.</p>
+        <div class="swatch">
+          <svg class="area-icon" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 0118 0M6 12a6 6 0 0112 0M9 12a3 3 0 016 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
+        </div>
+      </article>
+
+      <article class="area reveal" data-c="3">
+        <div class="num">03 / Domain</div>
+        <h3>Computer Vision &amp; Software 2.0</h3>
+        <p>Pushing the boundaries of computer vision and AI applications in industrial settings — from automated quality control to intelligent layout design, making factories smarter and more efficient.</p>
+        <div class="swatch">
+          <svg class="area-icon" viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/></svg>
+        </div>
+      </article>
+
+      <article class="area reveal" data-c="4">
+        <div class="num">04 / Domain</div>
+        <h3>Material Science</h3>
+        <p>Innovating with advanced materials for improved performance and sustainability. Our research covers composite materials, smart materials, and eco-friendly alternatives for industrial applications.</p>
+        <div class="swatch">
+          <svg class="area-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+      </article>
+
+      <article class="area reveal" data-c="5">
+        <div class="num">05 / Domain</div>
+        <h3>Manufacturing Process</h3>
+        <p>Revolutionizing manufacturing through advanced processes and technologies. We explore cutting-edge welding techniques, non-destructive testing methods, and additive manufacturing solutions.</p>
+        <div class="swatch">
+          <svg class="area-icon" viewBox="0 0 24 24" fill="none"><path d="M3 21h18M5 21V8l7-4 7 4v13M9 21v-8h6v8" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LAUNCH ANNOUNCEMENT ============ -->
+<section class="launch" id="launch">
+  <div class="wrap">
+    <div class="launch-grid">
+      <div class="launch-media reveal">
+        <img src="assets/photos/launch-event.png" alt="Wipro Research launch event with leadership from WIN and BITS Pilani" />
+        <div class="launch-caption">
+          <span class="dot" style="background:var(--strong-pink)"></span>
+          <span>Bengaluru · December 10, 2024 — Wipro Research launch with leadership from WIN and BITS Pilani.</span>
+        </div>
+      </div>
+
+      <div class="launch-copy reveal">
+        <span class="eyebrow">Press release · Dec 10, 2024</span>
+        <h2 style="margin-top:18px">A new home for engineering research.</h2>
+        <p class="lede">Wipro Infrastructure Engineering launched <strong>Wipro Research</strong> as a strategic initiative to drive innovation through engineering-focused research — anchored by a flagship academic partnership with <strong>BITS Pilani</strong>.</p>
+
+        <blockquote class="pullquote">
+          <p>"The launch of Wipro Research marks a significant step in our commitment to driving pioneering research that supports the continued growth and innovation across Wipro Infrastructure Engineering's core business units."</p>
+          <cite>
+            <strong>Pratik Kumar</strong>
+            <span>CEO, Wipro Infrastructure Engineering</span>
+          </cite>
+        </blockquote>
+
+        <div class="launch-people">
+          <div class="person">
+            <div class="person-name">Sundararaman G</div>
+            <div class="person-role">SVP and Chief Scientist, Wipro Research</div>
+          </div>
+          <div class="person">
+            <div class="person-name">Prof. V Ramgopal Rao</div>
+            <div class="person-role">Group Vice Chancellor, BITS Pilani</div>
+          </div>
+        </div>
+
+        <a href="https://www.wiproinfra.com/2025/07/22/wipro-infrastructure-engineering-launches-wipro-research-to-advance-engineering-innovation-in-collaboration-with-bits-pilani/" target="_blank" rel="noopener" class="launch-link">
+          Read the full press release
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WIN BUSINESSES ============ -->
+<section class="win-biz" id="businesses">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <span class="eyebrow">Inside WIN</span>
+        <h2 style="margin-top:18px">Six businesses. One research engine.</h2>
+      </div>
+      <p style="font-size:18px;line-height:1.6;color:var(--ink-soft);margin:0">
+        Wipro Research sits inside Wipro Infrastructure Engineering — a global business with four decades of manufacturing excellence across six interconnected verticals. Every research outcome lands in real production systems shipping to customers worldwide.
+      </p>
+    </div>
+
+    <div class="biz-grid">
+      <article class="biz reveal">
+        <div class="biz-photo">
+          <img src="assets/photos/biz-hydraulics.jpg" alt="Hydraulic-powered excavator on a construction site" />
+        </div>
+        <div class="biz-body">
+          <span class="biz-tag" style="background:var(--blue-green)">01 · Hydraulics</span>
+          <h3>Wipro Hydraulics</h3>
+          <p>Custom-built hydraulic cylinders, pumps, systems and components for Construction &amp; Earthmoving, Material &amp; Cargo Handling, Forestry, Farm &amp; Agriculture, Mining, and Truck Tipping.</p>
+          <a href="https://hydraulics.wiproinfra.com/" target="_blank" rel="noopener" class="biz-link">hydraulics.wiproinfra.com →</a>
+        </div>
+      </article>
+
+      <article class="biz reveal">
+        <div class="biz-photo">
+          <img src="assets/photos/biz-automation.jpg" alt="Industrial robotic arm on a flexible manufacturing line" />
+        </div>
+        <div class="biz-body">
+          <span class="biz-tag" style="background:var(--strong-pink)">02 · Automation</span>
+          <h3>Wipro Automation</h3>
+          <p>Deep expertise in turnkey automation solutions across assembly, machining, material handling, and logistics — bringing intelligent factories to global manufacturers.</p>
+          <a href="https://www.wipropari.com/" target="_blank" rel="noopener" class="biz-link">wipropari.com →</a>
+        </div>
+      </article>
+
+      <article class="biz reveal">
+        <div class="biz-photo">
+          <img src="assets/photos/biz-aerospace.jpg" alt="Aircraft on a runway — Wipro Aerospace components" />
+        </div>
+        <div class="biz-body">
+          <span class="biz-tag" style="background:var(--blue)">03 · Aerospace</span>
+          <h3>Wipro Aerospace</h3>
+          <p>Actuators and precision-engineered components for landing gears and aero-structure assemblies — supplying global aerospace primes with certification-grade quality.</p>
+          <a href="https://wiproaerospace.com/" target="_blank" rel="noopener" class="biz-link">wiproaerospace.com →</a>
+        </div>
+      </article>
+
+      <article class="biz reveal">
+        <div class="biz-photo">
+          <img src="assets/photos/biz-water.webp" alt="Aerial view of a wastewater treatment facility" />
+        </div>
+        <div class="biz-body">
+          <span class="biz-tag" style="background:var(--light-green)">04 · Water</span>
+          <h3>Wipro Water</h3>
+          <p>End-to-end Water and Wastewater treatment solutions for industrial applications — serving Oil &amp; Gas, Steel, Power, Pharma and Chemicals at scale.</p>
+          <a href="https://www.wiprowater.in/" target="_blank" rel="noopener" class="biz-link">wiprowater.in →</a>
+        </div>
+      </article>
+
+      <article class="biz reveal">
+        <div class="biz-photo">
+          <img src="assets/photos/biz-3d.jpg" alt="3D-printed lattice components — Wipro 3D additive manufacturing" />
+        </div>
+        <div class="biz-body">
+          <span class="biz-tag" style="background:var(--orange)">05 · Additive Manufacturing</span>
+          <h3>Wipro 3D</h3>
+          <p>Concept-to-component services in 3D printing — including design for Additive Manufacturing, prototyping, and serial production for demanding applications across Aerospace, Defense, Nuclear, Industrial and Medical segments.</p>
+          <a href="https://wipro-3d.com/" target="_blank" rel="noopener" class="biz-link">wipro-3d.com →</a>
+        </div>
+      </article>
+
+      <article class="biz reveal">
+        <div class="biz-photo">
+          <img src="assets/photos/biz-electronic.png" alt="Wipro Electronic Materials manufacturing facility" />
+        </div>
+        <div class="biz-body">
+          <span class="biz-tag" style="background:var(--yellow);color:var(--wipro-blue)">06 · Electronic Materials</span>
+          <h3>Wipro Electronic Materials</h3>
+          <p>Development and manufacturing of advanced copper-clad base materials for printed circuit boards (PCBs).</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COLLABORATION ============ -->
+<section class="collab" id="collaboration">
+  <div class="collab-bg" aria-hidden="true">
+    <svg viewBox="0 0 600 600">
+      <g fill="#FFFFFF">
+        <circle cx="80" cy="280" r="6"/><circle cx="100" cy="220" r="8"/>
+        <circle cx="135" cy="175" r="10"/><circle cx="180" cy="140" r="12"/>
+        <circle cx="240" cy="118" r="14"/><circle cx="305" cy="115" r="14"/>
+        <circle cx="370" cy="135" r="12"/><circle cx="420" cy="172" r="10"/>
+        <circle cx="460" cy="222" r="8"/><circle cx="480" cy="280" r="6"/>
+      </g>
+    </svg>
+    <svg viewBox="0 0 600 600">
+      <g fill="#FFFFFF">
+        <circle cx="80" cy="280" r="6"/><circle cx="100" cy="220" r="8"/>
+        <circle cx="135" cy="175" r="10"/><circle cx="180" cy="140" r="12"/>
+        <circle cx="240" cy="118" r="14"/><circle cx="305" cy="115" r="14"/>
+        <circle cx="370" cy="135" r="12"/><circle cx="420" cy="172" r="10"/>
+        <circle cx="460" cy="222" r="8"/><circle cx="480" cy="280" r="6"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <span class="eyebrow">Our model</span>
+        <h2 style="margin-top:18px">Built on collaboration.</h2>
+      </div>
+      <p class="lead">
+        Our success is built on collaboration. We move forward through three interconnected channels — each one sharpening the others, and each one open to the right partner.
+      </p>
+    </div>
+
+    <div class="channels">
+      <div class="channel reveal">
+        <span class="dot"></span>
+        <h3>In-house Research Team</h3>
+        <p>Dedicated experts driving immediate innovation across all five domains, embedded close to manufacturing reality.</p>
+      </div>
+      <div class="channel reveal">
+        <span class="dot"></span>
+        <h3>Academic Partnerships</h3>
+        <p>Long-horizon research with leading universities — from doctoral programs to multi-year joint initiatives.</p>
+      </div>
+      <div class="channel reveal">
+        <span class="dot"></span>
+        <h3>Startup Incubation</h3>
+        <p>Supporting and nurturing innovative startups in industrial technology, with access to real-world challenges.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PARTNERSHIP & CAREERS ============ -->
+<section class="partner" id="careers">
+  <div class="wrap">
+    <div class="partner-grid">
+
+      <div class="partner-card collab-card reveal">
+        <div>
+          <span class="eyebrow">Partnerships</span>
+          <h2>Working with us</h2>
+          <p>Most of our research is done with someone — a faculty group, another lab, a supplier, a startup. If you're working on a problem adjacent to ours, there are a few ways we typically engage.</p>
+          <ul class="ways-list">
+            <li>Sponsored research with academic groups</li>
+            <li>Joint projects with industry labs</li>
+            <li>Early-stage work with startups</li>
+            <li>Doctoral and post-doctoral programs</li>
+          </ul>
+        </div>
+        <a href="academic-partnerships.html" class="btn btn-primary">
+          Explore academic partnerships
+          <svg class="arrow" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L8 3m5 5l-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="partner-card career-card reveal">
+        <div class="career-photo">
+          <img src="assets/photos/team-bits-pilani.jpeg" alt="Wipro Research team with doctoral candidates at BITS Pilani Hyderabad campus" />
+        </div>
+        <div>
+          <span class="eyebrow">Careers</span>
+          <h2>Build your research career with us.</h2>
+          <p>We welcome doctoral candidates, post-doctoral researchers, and experienced engineers eager to translate ambitious ideas into industrial reality. Join a team where your work reaches the factory floor and the future of an industry.</p>
+          <ul class="ways-list">
+            <li>Doctoral &amp; post-doctoral research positions</li>
+            <li>Industry-integrated PhD programs</li>
+            <li>Senior research engineer roles</li>
+            <li>Visiting researcher opportunities</li>
+          </ul>
+        </div>
+        <a href="#contact" class="btn btn-primary">
+          Tell us about you
+          <svg class="arrow" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L8 3m5 5l-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section class="contact" id="contact">
+  <div class="wrap">
+    <div class="contact-grid">
+
+      <div class="contact-info reveal">
+        <span class="eyebrow">Contact</span>
+        <h2>Connect with us.</h2>
+        <p>Whether you're interested in career opportunities, research collaboration, or learning more about our initiatives, we'd love to hear from you.</p>
+
+        <div class="contact-meta">
+          <div class="row">
+            <span class="k">Address</span>
+            <span class="v">3rd floor, Wipro House, 80 Feet Rd, 1st Block Koramangala, Bengaluru, Karnataka, India 560034</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="contact-cta reveal">
+        <div class="contact-cta-inner">
+          <span class="eyebrow" style="color:rgba(255,255,255,.7)">Reach out directly</span>
+          <h3>Send us an email.</h3>
+          <p>Drop us a note describing your research focus, institution, or the kind of collaboration you have in mind.</p>
+          <a href="mailto:research.admin@wiproresearch.in?subject=Wipro%20Research%20%E2%80%94%20Inquiry" class="contact-cta-btn">
+            <span>research.admin@wiproresearch.in</span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L8 3m5 5l-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <p class="contact-cta-note">For academic partnerships, please mention your institution and area of research interest in the subject line.</p>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="assets/wipro-research-white.png" alt="Wipro Research" />
+        <p>The Research Division of Wipro Infrastructure Engineering. Driving innovation across automation, hydraulics, aerospace, electronics and advanced manufacturing.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Research</h4>
+        <ul>
+          <li><a href="#research">Motion &amp; Control</a></li>
+          <li><a href="#research">Electronics &amp; Networks</a></li>
+          <li><a href="#research">Computer Vision</a></li>
+          <li><a href="#research">Material Science</a></li>
+          <li><a href="#research">Manufacturing</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="https://www.wiproinfra.com/about-us" target="_blank" rel="noopener">About us</a></li>
+          <li><a href="https://www.wiproinfra.com/globally-connected/" target="_blank" rel="noopener">Global presence</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Policies</h4>
+        <ul>
+          <li><a href="https://www.wiproinfra.com/privacy-policy/" target="_blank" rel="noopener">Privacy policy</a></li>
+          <li><a href="https://www.wiproinfra.com/wp-content/uploads/2026/04/POSH-Policy-Updated_July-2025-1.pdf" target="_blank" rel="noopener">POSH policy</a></li>
+          <li><a href="https://www.wiproinfra.com/cobc-policy/" target="_blank" rel="noopener">COBC policy</a></li>
+          <li><a href="https://www.wiproinfra.com/csr-policy/" target="_blank" rel="noopener">CSR policy</a></li>
+          <li><a href="https://www.wiproinfra.com/ombuds-process/" target="_blank" rel="noopener">Ombuds process</a></li>
+          <li><a href="https://www.wiproinfra.com/disclaimer/" target="_blank" rel="noopener">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+<script>
+  // Nav background on scroll
+  const nav = document.getElementById('nav');
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 20);
+  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  // Mobile nav
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // ============ Hero animated graph (research domains ↔ WIN businesses) ============
+  (function initHeroGraph(){
+    const svgEl = document.getElementById('heroGraph');
+    if (!svgEl || typeof d3 === 'undefined') return;
+
+    const width = 800;
+    const height = 600;
+    const cx = width / 2;
+    const cy = height / 2;
+
+    const svg = d3.select(svgEl);
+
+    // Brand colors (mirror :root tokens)
+    const WIPRO_BLUE = '#351A55';
+    const BLUE_GREEN = '#3498B3';
+    const STRONG_PINK = '#BE266A';
+
+    // Soft glow for the link ribbons
+    const defs = svg.append('defs');
+    const linkGlow = defs.append('filter').attr('id', 'heroLinkGlow')
+      .attr('x', '-300%').attr('y', '-300%').attr('width', '600%').attr('height', '600%');
+    linkGlow.append('feGaussianBlur')
+      .attr('in', 'SourceGraphic').attr('stdDeviation', '2.8').attr('result', 'coloredBlur');
+    const merge = linkGlow.append('feMerge');
+    merge.append('feMergeNode').attr('in', 'coloredBlur');
+    merge.append('feMergeNode').attr('in', 'SourceGraphic');
+
+    // Bipartite graph: 5 research domains × 6 WIN businesses
+    const setA = [
+      { id: 'A', label: 'Autonomy & motion control', group: 'A' },
+      { id: 'C', label: 'Computer vision',           group: 'A' },
+      { id: 'E', label: 'Material science',          group: 'A' },
+      { id: 'G', label: 'Manufacturing processes',   group: 'A' },
+      { id: 'I', label: 'Electronics & networks',    group: 'A' }
+    ];
+    const setB = [
+      { id: 'B', label: 'Hydraulics',           group: 'B' },
+      { id: 'D', label: 'Automation',           group: 'B' },
+      { id: 'F', label: 'Aerospace',            group: 'B' },
+      { id: 'H', label: 'Water',                group: 'B' },
+      { id: 'J', label: '3D',                   group: 'B' },
+      { id: 'L', label: 'Electronic materials', group: 'B' }
+    ];
+    const nodes = [...setA, ...setB];
+    const links = [
+      { source:'A', target:'B' }, { source:'A', target:'D' },
+      { source:'C', target:'B' }, { source:'C', target:'D' },
+      { source:'E', target:'B' }, { source:'E', target:'D' }, { source:'E', target:'F' }, { source:'E', target:'H' },
+      { source:'G', target:'B' }, { source:'G', target:'D' }, { source:'G', target:'F' }, { source:'G', target:'J' }, { source:'G', target:'L' },
+      { source:'I', target:'D' }, { source:'I', target:'H' }, { source:'I', target:'L' }
+    ];
+
+    let speedScale = 0.1;
+    nodes.forEach(d => {
+      d.baseRadius = 95 + Math.random() * 65;
+      d.orbitSpeed = 0.0003 + Math.random() * 0.0006;
+      d.angle = Math.random() * Math.PI * 2;
+      d.orbitPhase = Math.random() * Math.PI * 2;
+      d.wobble = 0.12 + Math.random() * 0.08;
+      const edgePadding = 24;
+      d.x = d.group === 'A' ? edgePadding : width - edgePadding;
+      d.y = 180 + Math.random() * (height - 80);
+    });
+
+    const simulation = d3.forceSimulation(nodes)
+      .force('link', d3.forceLink(links).id(d => d.id).distance(82).strength(0.05))
+      .force('charge', d3.forceManyBody().strength(-525))
+      .force('center', d3.forceCenter(cx, cy))
+      .force('collide', d3.forceCollide(30))
+      .velocityDecay(0.9)
+      .alphaDecay(0.003);
+
+    setTimeout(() => {
+      speedScale = 1;
+      simulation.velocityDecay(0.4).alpha(0.6).restart();
+    }, 3000);
+
+    simulation.force('orbit', () => {
+      const now = Date.now();
+      nodes.forEach(d => {
+        if (d.fx || d.fy) return;
+        d.angle += d.orbitSpeed * speedScale;
+        const targetX = cx + Math.cos(d.angle) * d.baseRadius;
+        const targetY = cy + Math.sin(d.angle) * d.baseRadius * (1 + Math.sin(now * 0.0008 * speedScale + d.orbitPhase) * d.wobble);
+        const dx = targetX - d.x;
+        const dy = targetY - d.y;
+        d.vx = (d.vx || 0) * 0.94 + dx * 0.016 * speedScale;
+        d.vy = (d.vy || 0) * 0.94 + dy * 0.016 * speedScale;
+        d.vx += Math.sin(now * 0.0012 * speedScale + d.angle) * 0.05 * speedScale;
+        d.vy += Math.cos(now * 0.0011 * speedScale + d.angle * 1.3) * 0.04 * speedScale;
+      });
+    });
+
+    simulation.force('bounds', () => {
+      const r = 24;
+      nodes.forEach(d => {
+        if (d.x < r)            { d.x = r;            d.vx =  Math.abs(d.vx); }
+        if (d.x > width - r)    { d.x = width - r;    d.vx = -Math.abs(d.vx); }
+        if (d.y < r)            { d.y = r;            d.vy =  Math.abs(d.vy); }
+        if (d.y > height - r)   { d.y = height - r;   d.vy = -Math.abs(d.vy); }
+      });
+    });
+
+    const tooltip = svg.append('text').attr('class', 'tooltip').attr('opacity', 0);
+
+    const linkGroup = svg.append('g').attr('class', 'links').attr('filter', 'url(#heroLinkGlow)');
+    const link = linkGroup.selectAll('line').data(links).join('line').attr('class', 'link');
+
+    const nodeGroup = svg.append('g').attr('class', 'nodes');
+    const node = nodeGroup.selectAll('g').data(nodes, d => d.id).join(enter => {
+      const g = enter.append('g').attr('class', 'node');
+      g.append('circle')
+        .attr('class', 'main')
+        .attr('r', 16)
+        .attr('fill', d => d.group === 'A' ? WIPRO_BLUE : BLUE_GREEN);
+      return g;
+    });
+
+    node
+      .on('mouseover', function(event, d) {
+        const hovered = d3.select(this);
+        hovered.select('.main')
+          .attr('stroke', STRONG_PINK).attr('stroke-width', 2.5)
+          .transition().duration(120).attr('r', 18);
+        tooltip
+          .attr('x', d.x + 25).attr('y', d.y - 18)
+          .text(d.label).attr('opacity', 1);
+      })
+      .on('mouseout', function() {
+        const hovered = d3.select(this);
+        hovered.select('.main')
+          .attr('stroke', null).attr('stroke-width', null)
+          .transition().duration(120).attr('r', 16);
+        tooltip.attr('opacity', 0);
+      });
+
+    node.call(d3.drag()
+      .on('start', (event, d) => {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x; d.fy = d.y;
+      })
+      .on('drag', (event, d) => { d.fx = event.x; d.fy = event.y; })
+      .on('end', (event, d) => {
+        if (!event.active) simulation.alphaTarget(0);
+        d.fx = null; d.fy = null;
+      })
+    );
+
+    simulation.on('tick', () => {
+      link
+        .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+        .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+      node.attr('transform', d => `translate(${d.x},${d.y})`);
+    });
+  })();
+
+</script>
+
+</body>
+</html>
